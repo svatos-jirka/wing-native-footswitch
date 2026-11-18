@@ -1,0 +1,5 @@
+# Wokwi for VS Code / Wokwi CLI: runs the simulation build of ../WingPedal (see ../README.md).
+[wokwi]
+version = 1
+firmware = "build/WingPedal.ino.merged.bin"
+elf = "build/WingPedal.ino.elf"

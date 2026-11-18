@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "author": "WING Monitor",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-led-strip",
+      "id": "strip",
+      "top": -110,
+      "left": 160,
+      "attrs": { "pixels": "3", "pixelShape": "circle" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "flapLeft",
+      "top": 60,
+      "left": -230,
+      "attrs": { "color": "blue", "label": "LEVÁ (A)", "key": "a" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "flapCenter",
+      "top": 140,
+      "left": -230,
+      "attrs": { "color": "yellow", "label": "STŘED (S)", "key": "s" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "flapRight",
+      "top": 220,
+      "left": -230,
+      "attrs": { "color": "blue", "label": "PRAVÁ (D)", "key": "d" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "phone",
+      "top": 220,
+      "left": 190,
+      "attrs": { "color": "red", "label": "TELEFON dosah/mimo (P)", "key": "p", "bounce": "0" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "flapLeft:1.r", "esp:25", "green", [] ],
+    [ "flapLeft:2.r", "esp:GND.1", "black", [] ],
+    [ "flapCenter:1.r", "esp:26", "green", [] ],
+    [ "flapCenter:2.r", "esp:GND.1", "black", [] ],
+    [ "flapRight:1.r", "esp:27", "green", [] ],
+    [ "flapRight:2.r", "esp:GND.1", "black", [] ],
+    [ "phone:1.l", "esp:14", "orange", [] ],
+    [ "phone:2.l", "esp:GND.2", "black", [] ],
+    [ "strip:DIN", "esp:13", "green", [] ],
+    [ "strip:VDD", "esp:5V", "red", [] ],
+    [ "strip:VSS", "esp:GND.3", "black", [] ]
+  ],
+  "dependencies": {}
+}

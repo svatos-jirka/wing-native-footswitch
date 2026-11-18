@@ -1,0 +1,16 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'cz.svatjir.wingmonitor'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'cz.svatjir.wingmonitor'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+}

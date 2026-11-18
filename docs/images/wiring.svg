@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" width="1100" height="720" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+  <defs>
+    <g id="gnd" stroke="#111" stroke-width="2" fill="none">
+      <line x1="0" y1="0" x2="0" y2="6"/>
+      <line x1="-9" y1="6" x2="9" y2="6"/>
+      <line x1="-6" y1="10" x2="6" y2="10"/>
+      <line x1="-3" y1="14" x2="3" y2="14"/>
+    </g>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="720" fill="#ffffff"/>
+  <text x="20" y="36" font-size="22" font-weight="bold" fill="#111">WING footswitch – schéma zapojení</text>
+  <text x="20" y="60" font-size="13" fill="#555">Piny ESP32 jsou nakreslené podle funkce, ne podle polohy na desce (poloha viz tabulka v README).</text>
+
+  <!-- ===== Power supply ===== -->
+  <rect x="20" y="105" width="150" height="100" rx="8" fill="#f4f4f4" stroke="#333" stroke-width="2"/>
+  <text x="95" y="140" text-anchor="middle" font-weight="bold">Zdroj</text>
+  <text x="95" y="160" text-anchor="middle">9–12 V DC</text>
+  <text x="95" y="180" text-anchor="middle" font-size="12" fill="#555">(adaptér ≥ 1 A)</text>
+  <text x="160" y="131" text-anchor="end" font-size="12">+</text>
+  <text x="160" y="171" text-anchor="end" font-size="12">−</text>
+
+  <!-- ===== XL4015 ===== -->
+  <rect x="240" y="100" width="190" height="110" rx="8" fill="#eaf2ff" stroke="#2a5bd7" stroke-width="2"/>
+  <text x="335" y="132" text-anchor="middle" font-weight="bold">XL4015</text>
+  <text x="335" y="152" text-anchor="middle" font-size="12">step-down CC/CV, 4 A</text>
+  <text x="335" y="170" text-anchor="middle" font-size="12">CV = 5,0 V · CC ≈ 1 A</text>
+  <text x="248" y="139" font-size="11" fill="#2a5bd7">IN+</text>
+  <text x="248" y="179" font-size="11" fill="#2a5bd7">IN−</text>
+  <text x="422" y="139" font-size="11" fill="#2a5bd7" text-anchor="end">OUT+</text>
+  <text x="422" y="179" font-size="11" fill="#2a5bd7" text-anchor="end">OUT−</text>
+
+  <!-- input wires -->
+  <line x1="170" y1="135" x2="240" y2="135" stroke="#f28c00" stroke-width="3"/>
+  <line x1="170" y1="175" x2="240" y2="175" stroke="#111" stroke-width="3"/>
+  <text x="205" y="127" text-anchor="middle" font-size="11" fill="#b36200">9–12 V</text>
+
+  <!-- 5 V net -->
+  <polyline points="430,135 560,135" fill="none" stroke="#d62020" stroke-width="3"/>
+  <polyline points="500,135 500,82 850,82 850,190 880,190" fill="none" stroke="#d62020" stroke-width="3"/>
+  <circle cx="500" cy="135" r="4.5" fill="#d62020"/>
+  <text x="465" y="127" text-anchor="middle" font-size="11" fill="#d62020">5,0 V</text>
+  <text x="675" y="75" text-anchor="middle" font-size="11" fill="#d62020">5 V pro LED pásek</text>
+
+  <!-- GND net -->
+  <line x1="430" y1="175" x2="560" y2="175" stroke="#111" stroke-width="3"/>
+  <circle cx="500" cy="175" r="4.5" fill="#111"/>
+  <line x1="500" y1="175" x2="500" y2="192" stroke="#111" stroke-width="2"/>
+  <use href="#gnd" x="500" y="192"/>
+
+  <!-- ===== ESP32 ===== -->
+  <rect x="560" y="100" width="220" height="420" rx="10" fill="#1d2b3a" stroke="#0d141c" stroke-width="2"/>
+  <text x="670" y="300" text-anchor="middle" font-size="18" font-weight="bold" fill="#ffffff">ESP32</text>
+  <text x="670" y="322" text-anchor="middle" font-size="13" fill="#c9d6e3">NodeMCU / DevKitC</text>
+  <text x="670" y="340" text-anchor="middle" font-size="12" fill="#c9d6e3">(ESP32-WROOM-32)</text>
+  <rect x="645" y="505" width="50" height="26" rx="3" fill="#b8b8b8" stroke="#555"/>
+  <text x="670" y="523" text-anchor="middle" font-size="11">USB</text>
+
+  <!-- ESP32 pins, left -->
+  <g font-size="12" fill="#ffffff">
+    <circle cx="560" cy="135" r="4" fill="#ffd34d"/><text x="572" y="139">5V</text>
+    <circle cx="560" cy="175" r="4" fill="#ffd34d"/><text x="572" y="179">GND</text>
+    <circle cx="560" cy="250" r="4" fill="#ffd34d"/><text x="572" y="254">3V3</text>
+    <circle cx="560" cy="330" r="4" fill="#ffd34d"/><text x="572" y="334">GPIO25</text>
+    <circle cx="560" cy="400" r="4" fill="#ffd34d"/><text x="572" y="404">GPIO26</text>
+    <circle cx="560" cy="470" r="4" fill="#ffd34d"/><text x="572" y="474">GPIO27</text>
+  </g>
+  <!-- ESP32 pins, right -->
+  <g font-size="12" fill="#ffffff" text-anchor="end">
+    <circle cx="780" cy="230" r="4" fill="#ffd34d"/><text x="768" y="234">GND</text>
+    <circle cx="780" cy="290" r="4" fill="#ffd34d"/><text x="768" y="294">GPIO13</text>
+  </g>
+
+  <!-- ===== WS2812B strip ===== -->
+  <rect x="880" y="150" width="190" height="180" rx="8" fill="#fff6e5" stroke="#c98a00" stroke-width="2"/>
+  <text x="975" y="177" text-anchor="middle" font-weight="bold">WS2812B pásek</text>
+  <text x="975" y="196" text-anchor="middle" font-size="12">3 LED, 5 V</text>
+  <circle cx="935" cy="250" r="14" fill="#7fd0ff" stroke="#333"/>
+  <circle cx="975" cy="250" r="14" fill="#7fd0ff" stroke="#333"/>
+  <circle cx="1015" cy="250" r="14" fill="#5ee07a" stroke="#333"/>
+  <text x="935" y="284" text-anchor="middle" font-size="11">levá</text>
+  <text x="975" y="284" text-anchor="middle" font-size="11">střed</text>
+  <text x="1015" y="284" text-anchor="middle" font-size="11">pravá</text>
+  <text x="975" y="318" text-anchor="middle" font-size="11" fill="#555">šipky na pásku od DIN pryč</text>
+  <text x="888" y="186" font-size="11" fill="#c98a00">5V</text>
+  <text x="888" y="226" font-size="11" fill="#c98a00">GND</text>
+  <text x="888" y="304" font-size="11" fill="#c98a00">DIN</text>
+
+  <!-- strip GND and data -->
+  <line x1="780" y1="230" x2="880" y2="230" stroke="#111" stroke-width="3"/>
+  <line x1="780" y1="290" x2="805" y2="290" stroke="#1a9c3c" stroke-width="3"/>
+  <rect x="805" y="283" width="40" height="14" fill="#ffffff" stroke="#1a9c3c" stroke-width="2"/>
+  <line x1="845" y1="290" x2="880" y2="290" stroke="#1a9c3c" stroke-width="3"/>
+  <text x="825" y="276" text-anchor="middle" font-size="11" fill="#1a9c3c">330 Ω</text>
+
+  <!-- 470 uF across the strip supply -->
+  <circle cx="865" cy="190" r="4" fill="#d62020"/>
+  <circle cx="865" cy="230" r="4" fill="#111"/>
+  <line x1="865" y1="190" x2="865" y2="205" stroke="#333" stroke-width="2"/>
+  <line x1="855" y1="205" x2="875" y2="205" stroke="#333" stroke-width="3"/>
+  <path d="M855 215 Q865 209 875 215" fill="none" stroke="#333" stroke-width="3"/>
+  <line x1="865" y1="212" x2="865" y2="230" stroke="#333" stroke-width="2"/>
+  <text x="848" y="215" text-anchor="end" font-size="11">470 µF</text>
+
+  <!-- ===== Switches ===== -->
+  <text x="20" y="285" font-weight="bold">3× mikrospínač MS-1A-L14.5-P</text>
+  <text x="20" y="303" font-size="12" fill="#555">(páčka s kladkou, SPDT, typ KW11)</text>
+
+  <g id="sw-left">
+    <text x="20" y="335">Levá klapka</text>
+    <circle cx="200" cy="330" r="4" fill="#fff" stroke="#111" stroke-width="2"/>
+    <line x1="200" y1="330" x2="240" y2="316" stroke="#111" stroke-width="2"/>
+    <circle cx="246" cy="330" r="4" fill="#fff" stroke="#111" stroke-width="2"/>
+    <circle cx="246" cy="304" r="4" fill="#fff" stroke="#999" stroke-width="2"/>
+    <text x="256" y="308" font-size="10" fill="#999">NC – nezapojeno</text>
+    <text x="186" y="326" font-size="10" text-anchor="end">COM</text>
+    <text x="256" y="345" font-size="10">NO</text>
+    <line x1="200" y1="334" x2="200" y2="346" stroke="#111" stroke-width="2"/>
+    <use href="#gnd" x="200" y="346"/>
+    <line x1="250" y1="330" x2="556" y2="330" stroke="#2a5bd7" stroke-width="3"/>
+  </g>
+  <g>
+    <text x="20" y="405">Prostřední klapka</text>
+    <circle cx="200" cy="400" r="4" fill="#fff" stroke="#111" stroke-width="2"/>
+    <line x1="200" y1="400" x2="240" y2="386" stroke="#111" stroke-width="2"/>
+    <circle cx="246" cy="400" r="4" fill="#fff" stroke="#111" stroke-width="2"/>
+    <circle cx="246" cy="374" r="4" fill="#fff" stroke="#999" stroke-width="2"/>
+    <text x="256" y="378" font-size="10" fill="#999">NC – nezapojeno</text>
+    <text x="186" y="396" font-size="10" text-anchor="end">COM</text>
+    <text x="256" y="415" font-size="10">NO</text>
+    <line x1="200" y1="404" x2="200" y2="416" stroke="#111" stroke-width="2"/>
+    <use href="#gnd" x="200" y="416"/>
+    <line x1="250" y1="400" x2="556" y2="400" stroke="#2a5bd7" stroke-width="3"/>
+  </g>
+  <g>
+    <text x="20" y="475">Pravá klapka</text>
+    <circle cx="200" cy="470" r="4" fill="#fff" stroke="#111" stroke-width="2"/>
+    <line x1="200" y1="470" x2="240" y2="456" stroke="#111" stroke-width="2"/>
+    <circle cx="246" cy="470" r="4" fill="#fff" stroke="#111" stroke-width="2"/>
+    <circle cx="246" cy="444" r="4" fill="#fff" stroke="#999" stroke-width="2"/>
+    <text x="256" y="448" font-size="10" fill="#999">NC – nezapojeno</text>
+    <text x="186" y="466" font-size="10" text-anchor="end">COM</text>
+    <text x="256" y="485" font-size="10">NO</text>
+    <line x1="200" y1="474" x2="200" y2="486" stroke="#111" stroke-width="2"/>
+    <use href="#gnd" x="200" y="486"/>
+    <line x1="250" y1="470" x2="556" y2="470" stroke="#2a5bd7" stroke-width="3"/>
+  </g>
+  <text x="400" y="322" text-anchor="middle" font-size="11" fill="#2a5bd7">sepnuto = LOW (vnitřní pull-up)</text>
+
+  <!-- ===== Optional RC per input ===== -->
+  <rect x="830" y="370" width="250" height="160" rx="8" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="845" y="392" font-size="12" font-weight="bold" fill="#444">Volitelně u každého vstupu</text>
+  <text x="845" y="409" font-size="11" fill="#666">(delší vodiče ke spínačům)</text>
+  <text x="880" y="430" text-anchor="middle" font-size="11">3V3</text>
+  <line x1="880" y1="434" x2="880" y2="442" stroke="#333" stroke-width="2"/>
+  <rect x="874" y="442" width="12" height="30" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="894" y="461" font-size="11">10 kΩ</text>
+  <line x1="880" y1="472" x2="880" y2="488" stroke="#333" stroke-width="2"/>
+  <circle cx="880" cy="482" r="3.5" fill="#2a5bd7"/>
+  <line x1="880" y1="482" x2="960" y2="482" stroke="#2a5bd7" stroke-width="2"/>
+  <text x="966" y="486" font-size="11" fill="#2a5bd7">GPIO25/26/27</text>
+  <line x1="870" y1="488" x2="890" y2="488" stroke="#333" stroke-width="2.5"/>
+  <line x1="870" y1="495" x2="890" y2="495" stroke="#333" stroke-width="2.5"/>
+  <text x="896" y="496" font-size="11">100 nF</text>
+  <line x1="880" y1="495" x2="880" y2="503" stroke="#333" stroke-width="2"/>
+  <use href="#gnd" x="880" y="503"/>
+
+  <!-- ===== Warning ===== -->
+  <rect x="20" y="560" width="1060" height="84" rx="8" fill="#fff4d6" stroke="#e0a800" stroke-width="2"/>
+  <text x="40" y="588" font-size="15" font-weight="bold" fill="#8a5a00">⚠ ESP32 napájej buď z USB, nebo z XL4015 přes pin 5V – nikdy obojím zároveň.</text>
+  <text x="40" y="611" font-size="13" fill="#5a4300">Při nahrávání programu přes USB odpoj napájení z měniče. XL4015 nastav multimetrem na 5,0 V dřív, než k němu připojíš ESP32 a pásek.</text>
+  <text x="40" y="631" font-size="13" fill="#5a4300">Všechny GND (zdroj, XL4015, ESP32, pásek, COM spínačů) jsou propojené.</text>
+
+  <!-- ===== Legend ===== -->
+  <g font-size="12">
+    <line x1="20" y1="676" x2="50" y2="676" stroke="#f28c00" stroke-width="3"/><text x="56" y="680">9–12 V vstup</text>
+    <line x1="160" y1="676" x2="190" y2="676" stroke="#d62020" stroke-width="3"/><text x="196" y="680">5 V</text>
+    <line x1="240" y1="676" x2="270" y2="676" stroke="#111" stroke-width="3"/><text x="276" y="680">GND</text>
+    <line x1="330" y1="676" x2="360" y2="676" stroke="#1a9c3c" stroke-width="3"/><text x="366" y="680">data LED</text>
+    <line x1="440" y1="676" x2="470" y2="676" stroke="#2a5bd7" stroke-width="3"/><text x="476" y="680">vstupy klapek</text>
+    <use href="#gnd" x="590" y="666"/><text x="604" y="680">= společná zem (GND)</text>
+  </g>
+</svg>

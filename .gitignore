@@ -1,0 +1,35 @@
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+android/captures/
+.kotlin/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Arduino / Wokwi build output
+firmware/WingPedal/build/
+firmware/wokwi/build/
+
+# FreeCAD backups
+*.FCBak
+*.FCStd1
+
+# Test and mock logs
+*.jsonl
+tests/e2e/artifacts/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
