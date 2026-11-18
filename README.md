@@ -222,4 +222,8 @@ py -3.13 -m unittest discover -s tests\e2e -v
 - Footswitch je ověřený na skutečné desce ESP32 s telefonem: spojení přes BLE i všechny tři vstupy fungují. LED pásek a spínače v hotové krabičce se zatím testují.
 - Párování (bonding) pedálu s jedním telefonem zatím chybí, viz výše.
 
-Ukázkové nahrávky v `tools/pc-simulator/audio` jsou pod licencí CC0. Zdroje jsou uvedené v README u nahrávek.
+## Licence
+
+Kód, firmware, model a dokumentace jsou pod licencí [MIT](LICENSE).
+
+Ukázkové nahrávky v `tools/pc-simulator/audio` mají vlastní licenci **CC0**. Zdroje jsou uvedené v README u nahrávek.
