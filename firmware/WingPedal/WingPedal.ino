@@ -1,17 +1,17 @@
 /*
  * WING Monitor – three-button foot pedal
  *
- * ESP32 (WROOM-32) + 3 × MS-1A-L14.5-P (KW11-style) micro switches + WS2812B strip with 3 LEDs.
+ * ESP32 (WROOM-32) + 3 × MS-1A-L14.5-P (KW11-style) micro switches + WS2812B strip with 5 LEDs.
  * The pedal is a BLE client: it looks for the phone running WING Monitor
  * (the app advertises the pedal service once its "BLE" badge is switched on),
  * connects to the nearest one and writes two bytes [button, pressed] on every
  * press and release – the same protocol as tools/pc-simulator/pedal_simulator.py.
  *
- * LEDs (LED 1 = left flap, 2 = centre, 3 = right):
- *   starting up          all green
- *   looking for phone    blue light running across the three LEDs
- *   connected            all light blue
- *   flap pressed         that flap's LED green instead of light blue
+ * LEDs (LED 1 = left end of the strip, LED 5 = right end):
+ *   looking for phone    blue snake crawling from left to right, over and over
+ *   connected            all dim green (resting colour)
+ *   flap pressed         short red flash: left flap LED 1, centre LED 3, right LED 5
+ *   centre held 0.65 s   short red flash of LEDs 2, 3 and 4 (the app mutes / goes back)
  *
  * Libraries: NimBLE-Arduino 2.x, FastLED 3.x. Board: "ESP32 Dev Module".
  *
@@ -32,23 +32,33 @@
 // ---------------------------------------------------------------- Hardware
 // Micro switch: COM -> GND, NO -> GPIO (internal pull-up, pressed = LOW). NC stays unconnected.
 constexpr uint8_t PIN_LEFT = 25;
-constexpr uint8_t PIN_CENTER = 26;
-constexpr uint8_t PIN_RIGHT = 27;
+constexpr uint8_t PIN_CENTER = 33;
+constexpr uint8_t PIN_RIGHT = 32;
 // WS2812B DIN through a ~330 ohm resistor.
 constexpr uint8_t PIN_LED_DATA = 13;
-constexpr uint8_t LED_COUNT = 3;
+constexpr uint8_t LED_COUNT = 5;
 // Set to true if the strip is mounted so that its first LED (DIN end) sits at the right flap.
 constexpr bool LED_REVERSED = false;
 // 0–255. Kept moderate so the pedal does not glare on a dark stage.
 constexpr uint8_t LED_BRIGHTNESS = 90;
 
-const CRGB COLOR_STARTUP = CRGB(0, 255, 0);
-const CRGB COLOR_SEARCHING = CRGB(0, 0, 255);
-const CRGB COLOR_CONNECTED = CRGB(60, 170, 255);
-const CRGB COLOR_PRESSED = CRGB(0, 255, 0);
+// LED positions counted from the left, 0-based.
+constexpr uint8_t LED_LEFT = 0;
+constexpr uint8_t LED_CENTER = 2;
+constexpr uint8_t LED_RIGHT = 4;
+constexpr uint8_t CENTER_HOLD_LEDS[] = {1, 2, 3};
 
-constexpr uint32_t STARTUP_SHOW_MS = 1500;
-constexpr uint32_t SEARCH_STEP_MS = 220;
+const CRGB COLOR_SEARCHING = CRGB(0, 0, 255);
+const CRGB COLOR_CONNECTED = CRGB(0, 60, 0);
+const CRGB COLOR_FLASH = CRGB(255, 0, 0);
+
+// Searching snake: the head is full blue, the tail fades out behind it.
+constexpr uint8_t SNAKE_LEVELS[] = {255, 90, 25};
+constexpr uint8_t SNAKE_LENGTH = sizeof(SNAKE_LEVELS);
+constexpr uint32_t SNAKE_STEP_MS = 120;
+constexpr uint32_t FLASH_MS = 180;
+// Same as the app: holding the centre flap this long mutes (level page) or goes back (list).
+constexpr uint32_t CENTER_HOLD_MS = 650;
 constexpr uint32_t DEBOUNCE_MS = 20;
 constexpr uint32_t SCAN_TIME_MS = 3000;
 // Phones weaker than this are ignored so the pedal does not grab a bandmate's phone across the stage.
@@ -62,7 +72,7 @@ constexpr uint8_t BUTTON_CENTER = 2;
 constexpr uint8_t BUTTON_RIGHT = 3;
 
 // ---------------------------------------------------------------- State
-enum class LinkState : uint8_t { Starting, Searching, Connecting, Connected };
+enum class LinkState : uint8_t { Searching, Connecting, Connected };
 
 struct Flap {
   uint8_t pin;
@@ -71,18 +81,21 @@ struct Flap {
   bool pressed;
   bool lastRaw;
   uint32_t lastChangeMs;
+  uint32_t pressedAtMs;
+  bool holdShown;
 };
 
 Flap flaps[] = {
-    {PIN_LEFT, BUTTON_LEFT, 0, false, false, 0},
-    {PIN_CENTER, BUTTON_CENTER, 1, false, false, 0},
-    {PIN_RIGHT, BUTTON_RIGHT, 2, false, false, 0},
+    {PIN_LEFT, BUTTON_LEFT, LED_LEFT, false, false, 0, 0, false},
+    {PIN_CENTER, BUTTON_CENTER, LED_CENTER, false, false, 0, 0, false},
+    {PIN_RIGHT, BUTTON_RIGHT, LED_RIGHT, false, false, 0, 0, false},
 };
 
 CRGB leds[LED_COUNT];
+// Per LED position: millis() when its red flash ends.
+uint32_t flashUntilMs[LED_COUNT] = {};
 
-volatile LinkState linkState = LinkState::Starting;
-uint32_t startedAtMs = 0;
+volatile LinkState linkState = LinkState::Searching;
 
 #if WING_PEDAL_SIMULATION
 // ---------------------------------------------------------------- Simulated phone (Wokwi)
@@ -208,6 +221,10 @@ void sendEdge(const Flap& flap) {
 #endif
 
 // ---------------------------------------------------------------- Flaps
+void flash(uint8_t position, uint32_t now) {
+  flashUntilMs[position] = now + FLASH_MS;
+}
+
 void pollFlaps(uint32_t now) {
   for (Flap& flap : flaps) {
     bool raw = digitalRead(flap.pin) == LOW;
@@ -218,32 +235,48 @@ void pollFlaps(uint32_t now) {
     if (raw != flap.pressed && now - flap.lastChangeMs >= DEBOUNCE_MS) {
       flap.pressed = raw;
       Serial.printf("Flap %u %s\n", flap.buttonId, flap.pressed ? "down" : "up");
+      if (flap.pressed) {
+        flap.pressedAtMs = now;
+        flap.holdShown = false;
+        flash(flap.ledIndex, now);
+      }
       sendEdge(flap);
+    }
+    if (flap.buttonId == BUTTON_CENTER && flap.pressed && !flap.holdShown &&
+        now - flap.pressedAtMs >= CENTER_HOLD_MS) {
+      flap.holdShown = true;
+      Serial.printf("Flap %u held\n", flap.buttonId);
+      for (uint8_t position : CENTER_HOLD_LEDS) flash(position, now);
     }
   }
 }
 
 // ---------------------------------------------------------------- LEDs
-uint8_t ledFor(uint8_t index) {
-  return LED_REVERSED ? LED_COUNT - 1 - index : index;
+uint8_t ledFor(uint8_t position) {
+  return LED_REVERSED ? LED_COUNT - 1 - position : position;
+}
+
+void renderSnake(uint32_t now) {
+  fill_solid(leds, LED_COUNT, CRGB::Black);
+  // The head enters at the left end, the whole snake crawls out at the right end, one dark step, repeat.
+  int head = (now / SNAKE_STEP_MS) % (LED_COUNT + SNAKE_LENGTH);
+  for (uint8_t segment = 0; segment < SNAKE_LENGTH; segment++) {
+    int position = head - segment;
+    if (position < 0 || position >= LED_COUNT) continue;
+    CRGB color = COLOR_SEARCHING;
+    leds[ledFor(position)] = color.nscale8(SNAKE_LEVELS[segment]);
+  }
 }
 
 void renderLeds(uint32_t now) {
-  LinkState state = linkState;
-  if (state == LinkState::Starting) {
-    fill_solid(leds, LED_COUNT, COLOR_STARTUP);
-  } else if (state == LinkState::Connected) {
+  if (linkState == LinkState::Connected) {
     fill_solid(leds, LED_COUNT, COLOR_CONNECTED);
   } else {
-    // Searching / connecting: one blue LED stepping across the strip.
-    fill_solid(leds, LED_COUNT, CRGB::Black);
-    leds[ledFor((now / SEARCH_STEP_MS) % LED_COUNT)] = COLOR_SEARCHING;
+    renderSnake(now);
   }
-  // A held flap is always shown, which also helps when checking the wiring without a phone.
-  if (state != LinkState::Starting) {
-    for (const Flap& flap : flaps) {
-      if (flap.pressed) leds[ledFor(flap.ledIndex)] = COLOR_PRESSED;
-    }
+  // Flashes show even without a phone, which helps when checking the wiring.
+  for (uint8_t position = 0; position < LED_COUNT; position++) {
+    if (static_cast<int32_t>(flashUntilMs[position] - now) > 0) leds[ledFor(position)] = COLOR_FLASH;
   }
   FastLED.show();
 }
@@ -251,12 +284,13 @@ void renderLeds(uint32_t now) {
 // ---------------------------------------------------------------- Arduino
 void setup() {
   Serial.begin(115200);
-  startedAtMs = millis();
 
   for (Flap& flap : flaps) {
     pinMode(flap.pin, INPUT_PULLUP);
     flap.lastRaw = digitalRead(flap.pin) == LOW;
     flap.pressed = flap.lastRaw;
+    // A flap already held at power-on sent no press, so it gets no hold flash either.
+    flap.holdShown = flap.pressed;
   }
 
   FastLED.addLeds<WS2812B, PIN_LED_DATA, GRB>(leds, LED_COUNT);
@@ -276,17 +310,12 @@ void setup() {
   scan->setActiveScan(true);
   Serial.println("WING pedal ready");
 #endif
+  startScan();
 }
 
 void loop() {
-  uint32_t now = millis();
-
-  if (linkState == LinkState::Starting && now - startedAtMs >= STARTUP_SHOW_MS) {
-    startScan();
-  }
-
 #if WING_PEDAL_SIMULATION
-  simulatePhone(now);
+  simulatePhone(millis());
 #else
   if (connectRequested) {
     connectRequested = false;
@@ -301,10 +330,12 @@ void loop() {
 
   if (restartScanRequested) {
     restartScanRequested = false;
-    if (linkState != LinkState::Connected && linkState != LinkState::Starting) startScan();
+    if (linkState != LinkState::Connected) startScan();
   }
 #endif
 
+  // Read the clock after the BLE work above, which can block while connecting.
+  uint32_t now = millis();
   pollFlaps(now);
   renderLeds(now);
   delay(5);

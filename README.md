@@ -11,7 +11,7 @@ Osobní odposlech na pultu **Behringer WING** ovládaný z telefonu a nohou. Muz
 Na pódiu si každý muzikant chce sám doladit, kolik slyší sebe, zpěv nebo bicí. Oficiální aplikace jsou ale plné malých faderů a během hraní na ně nejsou volné ruce. Tenhle projekt to řeší takhle:
 
 - **Aplikace WING Monitor** ukazuje jen to podstatné: skupiny nástrojů a velká tlačítka **TIŠE / HLASITĚJI / ZTLUMIT**. Mění **jen Aux mix hráče**, nikdy gain ani hlavní mix.
-- **Footswitch** (ESP32 + 3 mikrospínače + 3 LED) posílá stisky klapek do telefonu přes Bluetooth LE: levá a pravá = tišeji / hlasitěji nebo pohyb v seznamu, prostřední = otevřít, zpět, ztlumit.
+- **Footswitch** (ESP32 + 3 mikrospínače + 5 LED) posílá stisky klapek do telefonu přes Bluetooth LE: levá a pravá = tišeji / hlasitěji nebo pohyb v seznamu, prostřední = otevřít, zpět, ztlumit.
 - **Automatika** podle živých úrovní vstupů z pultu: ztlumení šumu ze sálu a ochrana uší při přebuzení.
 
 ```mermaid
@@ -88,7 +88,7 @@ Snímky jsou z Android emulátoru připojeného k simulátoru pultu (`tools/wing
 | **prostřední** | otevřít / vrátit se | přes 0,65 s: ztlumit (stránka nástroje, Master), zpět (seznam) |
 | **pravá** | další položka / o 1 dB hlasitěji | opakuje |
 
-LED nad každou klapkou ukazují stav pedálu: **zelená** při startu, **běžící modrá** při hledání telefonu, **světle modrá** po připojení a **zelená** u sešlápnuté klapky.
+Pět LED nad klapkami ukazuje stav pedálu: **modrý had** zleva doprava, dokud pedál hledá telefon, a **slabě zelená** po připojení. Sešlápnutá klapka krátce blikne **červeně** svou LED (levá 1., prostřední 3., pravá 5.), podržení prostřední klapky blikne LED 2–4.
 
 ### Citlivost a automatika
 
@@ -106,7 +106,7 @@ Podrobnosti jsou v [android/README.md](android/README.md#úrovně-vstupů-citliv
 |---|---|---|
 | 1 | **ESP32 NodeMCU** / ESP32-DevKitC (ESP-WROOM-32) | v Arduino IDE „ESP32 Dev Module“ |
 | 1 | **Step-down modul 4 A XL4015**, DC-DC, CC/CV | nastavit na 5,0 V |
-| 1 | **WS2812B** pásek, 3 LED | 5 V, adresovatelný („NeoPixel“) |
+| 1 | **WS2812B** pásek, 5 LED | 5 V, adresovatelný („NeoPixel“) |
 | 3 | **Mikrospínač MS-1A-L14.5-P** (prodává se i jako MS-1A-14,5P) | páčka s kladkou, SPDT, typ KW11 |
 | 1 | rezistor 330 Ω | do datového vodiče pásku |
 | 1 | elektrolytický kondenzátor 470 µF / ≥ 10 V | na napájení pásku |
@@ -136,11 +136,11 @@ Model ve FreeCADu obsahuje i tři klapky (levou, prostřední a pravou), horní 
 | zem | XL4015 **OUT−** | ESP32 **GND**, pásek **GND**, **COM** všech spínačů |
 | data LED | ESP32 **GPIO 13** → 330 Ω | pásek **DIN** |
 | levá klapka | spínač **NO** | ESP32 **GPIO 25** |
-| prostřední klapka | spínač **NO** | ESP32 **GPIO 26** |
-| pravá klapka | spínač **NO** | ESP32 **GPIO 27** |
+| prostřední klapka | spínač **NO** | ESP32 **GPIO 33** |
+| pravá klapka | spínač **NO** | ESP32 **GPIO 32** |
 | | spínač **NC** | nezapojeno |
 
-Na desce ESP32-DevKitC (38 pinů, USB dole) jsou všechny potřebné piny na **levé straně**. Odshora: 3V3, EN, VP, VN, 34, 35, 32, 33, **25**, **26**, **27**, 14, 12, **GND**, **13**, D2, D3, CMD, **5V**. Jiné varianty desek (například 30pinová DevKit V1) mají jiné pořadí, proto se vždy řiďte popisky natištěnými na desce. Oficiální rozložení pinů je v [dokumentaci Espressifu](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html).
+Na desce ESP32-DevKitC (38 pinů, USB dole) jsou všechny potřebné piny na **levé straně**. Odshora: 3V3, EN, VP, VN, 34, 35, **32**, **33**, **25**, 26, 27, 14, 12, **GND**, **13**, D2, D3, CMD, **5V**. Jiné varianty desek (například 30pinová DevKit V1) mají jiné pořadí, proto se vždy řiďte popisky natištěnými na desce. Oficiální rozložení pinů je v [dokumentaci Espressifu](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html).
 
 Vstupy používají vnitřní pull-up rezistory ESP32: rozepnutý spínač = HIGH, sešlápnutá klapka spojí pin s GND = LOW.
 
@@ -154,7 +154,7 @@ Vstupy používají vnitřní pull-up rezistory ESP32: rozepnutý spínač = HIG
 3. Proudové omezení **CC** můžete nastavit asi na 1 A, pedál bere zhruba do 0,3 A.
 4. Teprve pak připojte ESP32 a pásek.
 
-**LED pásek:** připojte se na začátek pásku (DIN), šipky na pásku musí mířit od místa připojení pryč. První LED patří levé klapce; pokud je pásek otočený, nastavte ve firmwaru `LED_REVERSED = true`.
+**LED pásek:** připojte se na začátek pásku (DIN), šipky na pásku musí mířit od místa připojení pryč. První LED je nad levou klapkou, třetí nad prostřední a pátá nad pravou; pokud je pásek otočený, nastavte ve firmwaru `LED_REVERSED = true`.
 
 ## Firmware
 
@@ -179,18 +179,18 @@ Pedál se zatím **nepáruje v nastavení Bluetooth** systému Android. Připoju
 
 1. **V telefonu** otevřete WING Monitor a klepněte na štítek **BLE: VYP**.
 2. Povolte oprávnění **Zařízení v okolí** a případně zapnutí Bluetooth. Štítek se změní na **BLE: ČEKÁ**: aplikace teď na pedál čeká.
-3. **Zapněte pedál** blízko telefonu (do 1–2 m). LED nejdřív svítí **zeleně** a pak **běží modře**, protože pedál hledá telefon.
+3. **Zapněte pedál** blízko telefonu (do 1–2 m). LED ukazují **modrého hada** zleva doprava, protože pedál hledá telefon.
 4. Pedál 3 s sbírá telefony v dosahu a připojí se k tomu s nejsilnějším signálem. Signál musí být aspoň **−80 dBm**, slabší telefony pedál ignoruje.
-5. Po připojení svítí LED **světle modře** a aplikace ukazuje **BLE: OK**.
-6. Sešlápněte klapku. Její LED se rozsvítí **zeleně** a aplikace zareaguje.
+5. Po připojení svítí všechny LED **slabě zeleně** a aplikace ukazuje **BLE: OK**.
+6. Sešlápněte klapku. Její LED krátce blikne **červeně** a aplikace zareaguje.
 
 ### Dobré vědět
 
 - **Po každém spuštění aplikace** je potřeba BLE znovu zapnout klepnutím na **BLE: VYP**.
-- Když se spojení přeruší (telefon mimo dosah, aplikace zavřená), pedál začne sám znovu hledat (běžící modrá) a po návratu telefonu se připojí.
+- Když se spojení přeruší (telefon mimo dosah, aplikace zavřená), pedál začne sám znovu hledat (modrý had) a po návratu telefonu se připojí.
 - **Pedál v nastavení Bluetooth telefonu nepárujte.** Zařízení „WING Pedal“ se tam párovat nemá, spojení řídí aplikace.
 - **Víc muzikantů s aplikací na jednom pódiu:** pedál zapínejte vedle svého telefonu, aby měl jasně nejsilnější signál.
-- **Pedál dlouho běží modře:** zkontrolujte, že aplikace ukazuje **BLE: ČEKÁ**, a přibližte telefon. Sériová linka ESP32 (115200 Bd) vypisuje nalezené telefony i se silou signálu (`Phone with WING Monitor: … RSSI -84`).
+- **Modrý had běží dlouho:** zkontrolujte, že aplikace ukazuje **BLE: ČEKÁ**, a přibližte telefon. Sériová linka ESP32 (115200 Bd) vypisuje nalezené telefony i se silou signálu (`Phone with WING Monitor: … RSSI -84`).
 
 ### Bezpečnost a plán
 
@@ -219,7 +219,7 @@ py -3.13 -m unittest discover -s tests\e2e -v
 ## Stav projektu
 
 - Aplikace je otestovaná proti simulátoru pultu a s aplikací WING-Q v emulátoru. **Se skutečným pultem WING zatím ověřená není.** Formát měření vstupů je převzatý z WING-Q.
-- Footswitch je ověřený na skutečné desce ESP32 s telefonem: spojení přes BLE i všechny tři vstupy fungují. LED pásek a spínače v hotové krabičce se zatím testují.
+- Footswitch je ověřený na skutečné desce ESP32 s telefonem: spojení přes BLE i všechny tři vstupy fungovaly s původním pinoutem GPIO 25/26/27. Nový pinout GPIO 25/33/32 zatím na desce ověřený není. LED pásek a spínače v hotové krabičce se zatím testují.
 - Párování (bonding) pedálu s jedním telefonem zatím chybí, viz výše.
 
 ## Licence

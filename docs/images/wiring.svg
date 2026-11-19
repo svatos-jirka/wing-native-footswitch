@@ -62,8 +62,8 @@
     <circle cx="560" cy="175" r="4" fill="#ffd34d"/><text x="572" y="179">GND</text>
     <circle cx="560" cy="250" r="4" fill="#ffd34d"/><text x="572" y="254">3V3</text>
     <circle cx="560" cy="330" r="4" fill="#ffd34d"/><text x="572" y="334">GPIO25</text>
-    <circle cx="560" cy="400" r="4" fill="#ffd34d"/><text x="572" y="404">GPIO26</text>
-    <circle cx="560" cy="470" r="4" fill="#ffd34d"/><text x="572" y="474">GPIO27</text>
+    <circle cx="560" cy="400" r="4" fill="#ffd34d"/><text x="572" y="404">GPIO33</text>
+    <circle cx="560" cy="470" r="4" fill="#ffd34d"/><text x="572" y="474">GPIO32</text>
   </g>
   <!-- ESP32 pins, right -->
   <g font-size="12" fill="#ffffff" text-anchor="end">
@@ -74,13 +74,18 @@
   <!-- ===== WS2812B strip ===== -->
   <rect x="880" y="150" width="190" height="180" rx="8" fill="#fff6e5" stroke="#c98a00" stroke-width="2"/>
   <text x="975" y="177" text-anchor="middle" font-weight="bold">WS2812B pásek</text>
-  <text x="975" y="196" text-anchor="middle" font-size="12">3 LED, 5 V</text>
-  <circle cx="935" cy="250" r="14" fill="#7fd0ff" stroke="#333"/>
-  <circle cx="975" cy="250" r="14" fill="#7fd0ff" stroke="#333"/>
-  <circle cx="1015" cy="250" r="14" fill="#5ee07a" stroke="#333"/>
-  <text x="935" y="284" text-anchor="middle" font-size="11">levá</text>
+  <text x="975" y="196" text-anchor="middle" font-size="12">5 LED, 5 V</text>
+  <circle cx="915" cy="250" r="12" fill="#8fd19e" stroke="#333"/>
+  <circle cx="945" cy="250" r="12" fill="#8fd19e" stroke="#333"/>
+  <circle cx="975" cy="250" r="12" fill="#8fd19e" stroke="#333"/>
+  <circle cx="1005" cy="250" r="12" fill="#8fd19e" stroke="#333"/>
+  <circle cx="1035" cy="250" r="12" fill="#ff5a5a" stroke="#333"/>
+  <g font-size="10" text-anchor="middle" fill="#333">
+    <text x="915" y="254">1</text><text x="945" y="254">2</text><text x="975" y="254">3</text><text x="1005" y="254">4</text><text x="1035" y="254">5</text>
+  </g>
+  <text x="915" y="284" text-anchor="middle" font-size="11">levá</text>
   <text x="975" y="284" text-anchor="middle" font-size="11">střed</text>
-  <text x="1015" y="284" text-anchor="middle" font-size="11">pravá</text>
+  <text x="1035" y="284" text-anchor="middle" font-size="11">pravá</text>
   <text x="975" y="318" text-anchor="middle" font-size="11" fill="#555">šipky na pásku od DIN pryč</text>
   <text x="888" y="186" font-size="11" fill="#c98a00">5V</text>
   <text x="888" y="226" font-size="11" fill="#c98a00">GND</text>
@@ -158,7 +163,7 @@
   <line x1="880" y1="472" x2="880" y2="488" stroke="#333" stroke-width="2"/>
   <circle cx="880" cy="482" r="3.5" fill="#2a5bd7"/>
   <line x1="880" y1="482" x2="960" y2="482" stroke="#2a5bd7" stroke-width="2"/>
-  <text x="966" y="486" font-size="11" fill="#2a5bd7">GPIO25/26/27</text>
+  <text x="966" y="486" font-size="11" fill="#2a5bd7">GPIO25/33/32</text>
   <line x1="870" y1="488" x2="890" y2="488" stroke="#333" stroke-width="2.5"/>
   <line x1="870" y1="495" x2="890" y2="495" stroke="#333" stroke-width="2.5"/>
   <text x="896" y="496" font-size="11">100 nF</text>

@@ -7,19 +7,19 @@ Arduino program pro skutečný třítlačítkový footswitch. ESP32 se přes Blu
 - ESP32 NodeMCU / DevKitC (ESP32-WROOM-32), v Arduino IDE deska **ESP32 Dev Module**.
 - Napájení z měniče **XL4015** nastaveného na **5,0 V** do pinu **5V** desky.
 - 3 × mikrospínač **MS-1A-L14.5-P** (páčka s kladkou, SPDT, typ KW11): **COM → GND**, **NO → GPIO**, NC nezapojený.
-- Adresovatelný pásek **WS2812B** se 3 LED (5 V). Obyčejný 12V RGB pásek bez čipu v každé LED by potřeboval MOSFETy a jiný program.
+- Adresovatelný pásek **WS2812B** s 5 LED (5 V). Obyčejný 12V RGB pásek bez čipu v každé LED by potřeboval MOSFETy a jiný program.
 
 | Funkce | Pin ESP32 |
 |---|---|
 | Levá klapka (NO spínače) | GPIO 25 |
-| Prostřední klapka | GPIO 26 |
-| Pravá klapka | GPIO 27 |
+| Prostřední klapka | GPIO 33 |
+| Pravá klapka | GPIO 32 |
 | DIN pásku (přes ~330 Ω) | GPIO 13 |
 | 5 V a GND pásku | 5 V z XL4015 / společná GND |
 
-Piny 25, 26 a 27 mají zapnutý vnitřní pull-up (`INPUT_PULLUP`): rozepnutý spínač = HIGH, sepnutý (spojený s GND) = LOW. U delších vodičů ke spínačům přidejte u ESP32 ke každému vstupu 10 kΩ na 3V3 a 100 nF na GND.
+Piny 25, 33 a 32 mají zapnutý vnitřní pull-up (`INPUT_PULLUP`): rozepnutý spínač = HIGH, sepnutý (spojený s GND) = LOW. U delších vodičů ke spínačům přidejte u ESP32 ke každému vstupu 10 kΩ na 3V3 a 100 nF na GND.
 
-Mezi 5 V a GND hned u pásku patří kondenzátor 470 µF. Datový signál 3,3 V krátký pásek WS2812B obvykle zvládne. Pokud LED blikají nebo ukazují nesmysly, přidejte převodník úrovní 74AHCT125. První LED u DIN patří levé klapce. Pokud je pásek v krabičce otočený, nastavte `LED_REVERSED = true`.
+Mezi 5 V a GND hned u pásku patří kondenzátor 470 µF. Datový signál 3,3 V krátký pásek WS2812B obvykle zvládne. Pokud LED blikají nebo ukazují nesmysly, přidejte převodník úrovní 74AHCT125. První LED (u DIN) je nad levou klapkou, třetí nad prostřední a pátá nad pravou. Pokud je pásek v krabičce otočený, nastavte `LED_REVERSED = true`.
 
 > **Pozor na napájení:** ESP32 napájejte **buď z USB, nebo z XL4015 do pinu 5V, nikdy obojím zároveň**. Při nahrávání programu přes USB odpojte napájení z měniče, případně celý měnič.
 
@@ -27,14 +27,18 @@ Celé schéma zapojení je v hlavním [README](../README.md#schéma-zapojení).
 
 ## LED
 
+LED se počítají zleva, 1. LED je u vstupu DIN.
+
 | Stav | LED |
 |---|---|
-| Start (≈1,5 s) | všechny zelené |
-| Hledá telefon / připojuje se | jedna modrá LED běží dokola |
-| Připojeno | všechny světle modré |
-| Klapka sešlápnutá | LED té klapky zelená (i bez telefonu, hodí se pro kontrolu zapojení) |
+| Hledá telefon / připojuje se (i hned po zapnutí) | modrý „had“ leze zleva doprava, pořád dokola |
+| Připojeno | všechny slabě zelené (výchozí barva) |
+| Sešlápnutí klapky | krátce červeně blikne LED klapky (levá 1., prostřední 3., pravá 5.), pak se vrátí výchozí barva |
+| Prostřední klapka podržená 0,65 s | krátce červeně bliknou LED 2, 3 a 4 (aplikace v tu chvíli ztlumí nebo se vrátí zpět) |
 
-Barvy, jas (`LED_BRIGHTNESS`, výchozí 90/255) a piny jsou konstanty na začátku `WingPedal.ino`.
+Bliknutí se ukazuje i bez telefonu, takže jde zkontrolovat zapojení spínačů.
+
+Barvy, jas (`LED_BRIGHTNESS`, výchozí 90/255), délka bliknutí (`FLASH_MS`), rychlost hada (`SNAKE_STEP_MS`) a piny jsou konstanty na začátku `WingPedal.ino`.
 
 ## Překlad a nahrání
 
@@ -66,7 +70,7 @@ V prohlížeči:
 4. Přidejte knihovnu **FastLED** (Library Manager nebo soubor `libraries.txt` jako `wokwi/libraries.txt`).
 5. Spusťte simulaci. Klikejte na tlačítka nebo použijte klávesnici: **A** / **S** / **D** = levá / prostřední / pravá klapka, **P** = telefon. Ctrl+klik tlačítko podrží (například pro vyzkoušení podržení prostřední klapky).
 
-Očekávané chování: 1,5 s zelená, 3 s běžící modrá, pak světle modrá. Držená klapka rozsvítí svou LED zeleně a vypíše zápis. **P** spojení přeruší (běžící modrá) a druhé **P** se po 3 s znovu připojí.
+Očekávané chování: 3 s modrý had, pak všechny LED slabě zelené. Stisk klapky krátce červeně blikne její LED (1., 3. nebo 5.) a vypíše zápis. Podržení prostřední klapky déle než 0,65 s blikne LED 2–4. **P** spojení přeruší (modrý had) a druhé **P** se po 3 s znovu připojí.
 
 Ve **Wokwi for VS Code** otevřete složku `wokwi`. `wokwi.toml` používá předpřeložený simulační firmware ve `wokwi/build`, který vytvoříte takto:
 
@@ -77,4 +81,4 @@ arduino-cli compile --fqbn esp32:esp32:esp32 --build-property "compiler.cpp.extr
 ## Omezení
 
 - **Zatím bez párování (bondingu).** Pedál se připojí k *nejbližšímu* telefonu, který inzeruje službu pedálu WING Monitor a má signál aspoň −80 dBm (`MIN_RSSI`). Postup je v hlavním README v části [Párování pedálu s telefonem](../README.md#párování-pedálu-s-telefonem).
-- Ověřeno na skutečné desce ESP32-DevKitC (CP2102): pedál najde telefon, připojí se (aplikace ukáže **BLE: OK**) a vstupy GPIO 25/26/27 fungují v aplikaci jako levá, prostřední a pravá klapka. LED pásek a finální spínače v krabičce zatím ověřené nejsou.
+- Ověřeno na skutečné desce ESP32-DevKitC (CP2102): pedál najde telefon, připojí se (aplikace ukáže **BLE: OK**) a původní zapojení GPIO 25/26/27 fungovalo v aplikaci jako levá, prostřední a pravá klapka. Nové zapojení GPIO 25/33/32 je potřeba ověřit na desce. LED pásek a finální spínače v krabičce zatím ověřené nejsou.

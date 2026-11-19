@@ -9,7 +9,7 @@
       "id": "strip",
       "top": -110,
       "left": 160,
-      "attrs": { "pixels": "3", "pixelShape": "circle" }
+      "attrs": { "pixels": "5", "pixelShape": "circle" }
     },
     {
       "type": "wokwi-pushbutton",
@@ -45,9 +45,9 @@
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
     [ "flapLeft:1.r", "esp:25", "green", [] ],
     [ "flapLeft:2.r", "esp:GND.1", "black", [] ],
-    [ "flapCenter:1.r", "esp:26", "green", [] ],
+    [ "flapCenter:1.r", "esp:33", "green", [] ],
     [ "flapCenter:2.r", "esp:GND.1", "black", [] ],
-    [ "flapRight:1.r", "esp:27", "green", [] ],
+    [ "flapRight:1.r", "esp:32", "green", [] ],
     [ "flapRight:2.r", "esp:GND.1", "black", [] ],
     [ "phone:1.l", "esp:14", "orange", [] ],
     [ "phone:2.l", "esp:GND.2", "black", [] ],
